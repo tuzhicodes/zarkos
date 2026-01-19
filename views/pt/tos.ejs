@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - <%= botConfig.name %></title>
+    <title>Terms of Service - <%= botConfig.name %></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* Reuse same CSS variables from Privacy Policy for consistency */
         :root {
             --bg-dark: #09090b;
             --accent: #FFD700;
@@ -28,13 +29,11 @@
             overflow-x: hidden;
         }
 
-        /* Animated Background (Same as Login) */
         .ambient-light { position: fixed; width: 100%; height: 100%; z-index: -1; }
         .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.3; }
-        .orb-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #FF4500; }
-        .orb-2 { bottom: -10%; right: -10%; width: 40vw; height: 40vw; background: #FFD700; }
+        .orb-1 { top: 50%; left: -10%; width: 50vw; height: 50vw; background: #8B0000; }
+        .orb-2 { top: -10%; right: -10%; width: 40vw; height: 40vw; background: #FF8C00; }
 
-        /* Layout */
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -44,7 +43,6 @@
             gap: 40px;
         }
 
-        /* Content Card */
         .doc-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -63,14 +61,23 @@
             display: inline-block;
             padding: 5px 12px;
             border-radius: 50px;
-            background: rgba(255, 215, 0, 0.1);
-            color: #FFD700;
+            background: rgba(255, 69, 0, 0.1);
+            color: #ff6b6b;
             font-size: 0.8rem;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 69, 0, 0.2);
             margin-bottom: 20px;
         }
 
-        /* Sidebar */
+        /* Warning Box */
+        .warning-box {
+            background: rgba(255, 69, 0, 0.05);
+            border-left: 4px solid #ff4444;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-title { color: #ff4444; font-weight: 700; display: block; margin-bottom: 5px; }
+
         .sidebar { position: sticky; top: 40px; height: fit-content; }
         
         .stat-card {
@@ -97,11 +104,8 @@
             cursor: pointer;
         }
 
-        .btn-add { background: var(--accent-gradient); color: #000; }
-        .btn-add:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3); }
-        
-        .btn-support { background: #5865F2; color: #fff; }
-        .btn-support:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3); }
+        .btn-invite { background: var(--accent-gradient); color: #000; }
+        .btn-invite:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 140, 0, 0.3); }
 
         .btn-home { background: transparent; border: 1px solid var(--glass-border); color: #fff; }
         .btn-home:hover { background: rgba(255,255,255,0.05); }
@@ -129,62 +133,58 @@
 
     <div class="container">
         <div class="doc-card">
-            <span class="badge">Last Updated: January 15, 2026</span>
-            <h1>Privacy Policy</h1>
-            <p>Transparency is our core value at <strong><%= botConfig.name %></strong>.</p>
+            <span class="badge">Effective: January 15, 2026</span>
+            <h1>Terms of Service</h1>
+            <p>By inviting or using <strong><%= botConfig.name %></strong>, you agree to the following terms.</p>
 
-            <h2><i class="fas fa-shield-alt"></i> 1. Data Collection</h2>
-            <p>We only collect the absolute minimum data required for the bot to function:</p>
+            <h2><i class="fas fa-gavel"></i> 1. Usage Agreement</h2>
+            <p>ZarKos Ultimate is a utility, economy, and AI chat bot provided "as is". You agree not to use this bot to violate Discord's Community Guidelines or Terms of Service.</p>
+
+            <h2><i class="fas fa-exclamation-triangle"></i> 2. Liability & Responsibility</h2>
+            <div class="warning-box">
+                <span class="warning-title">IMPORTANT DISCLAIMER</span>
+                We are <strong>NOT RESPONSIBLE</strong> for any damages or issues that occur in your server due to the misuse of bot commands by your admins or members.
+            </div>
+            <p>Specifically regarding commands like <span class="command-tag">/say</span> or <span class="command-tag">/embed</span>: These commands replicate user input. If a user abuses them, we cannot be held liable.</p>
+            <p><strong>Recommendation:</strong> We strongly advise Server Owners to use the <span class="command-tag">/logsetup</span> command. This creates a secure log channel where the bot records exactly <em>who</em> used <em>what</em> command, ensuring accountability.</p>
+
+            <h2><i class="fas fa-coins"></i> 3. Economy System</h2>
+            <p>ZarKos features a virtual economy system. Please note:</p>
             <ul>
-                <li><strong>User IDs & Usernames:</strong> To identify you for Economy and Leveling systems.</li>
-                <li><strong>Server Configurations:</strong> Settings for Logs, Welcome messages, etc.</li>
-                <li><strong>Chat Inputs:</strong> Processed for AI responses but handled securely.</li>
+                <li>Virtual currency has <strong>NO real-world monetary value</strong>.</li>
+                <li>We reserve the right to reset economy stats in case of bug abuse or critical updates (though we try to avoid this).</li>
             </ul>
 
-            <h2><i class="fas fa-robot"></i> 2. AI & Chat Data</h2>
-            <p>ZarKos Ultimate uses advanced AI. Here is how we handle your conversations:</p>
-            <ul>
-                <li>Your data is <strong>NOT</strong> used to train public models.</li>
-                <li>You have full control. Use <span class="command-tag">/memory-clear</span> at any time to instantly wipe the bot's memory of your conversation.</li>
-            </ul>
-
-            <h2><i class="fas fa-lock"></i> 3. Data Usage & Safety</h2>
-            <p><strong>We do NOT sell your data.</strong> Your data is never shared with third parties for marketing or illegal purposes. ZarKos is a utility-first bot built with security in mind.</p>
-            <p>The bot logs administrative actions (like kicks/bans) only when you set up <span class="command-tag">/logsetup</span>. These logs stay within your server.</p>
-
-            <h2><i class="fas fa-eraser"></i> 4. Right to Deletion</h2>
-            <p>If you wish to remove all your data from our database permanently:</p>
-            <ul>
-                <li>Join our <a href="<%= botConfig.supportUrl %>" style="color:#FFD700">Support Server</a> and open a ticket.</li>
-                <li>Email us directly at: <a href="mailto:tuzhicodes@zohomail.in" style="color:#FFD700">tuzhicodes@zohomail.in</a>.</li>
-            </ul>
+            <h2><i class="fas fa-user-shield"></i> 4. Availability</h2>
+            <p>ZarKos Ultimate was publicly launched on <strong>15.01.2026</strong>. While we aim for 99.9% uptime, we cannot guarantee uninterrupted service during maintenance or Discord API outages.</p>
 
             <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--glass-border); font-size: 0.9rem;">
-                <p>Developed with ❤️ by <strong>@TuZhiCodes</strong>.</p>
+                <p>Contact for Legal Inquiries: <a href="mailto:tuzhicodes@zohomail.in" style="color:#FFD700">tuzhicodes@zohomail.in</a></p>
+                <p>YouTube: <a href="https://youtube.com/@TuZhiCodes" target="_blank" style="color:#FFD700">@TuZhiCodes</a></p>
             </div>
         </div>
 
         <div class="sidebar">
             <div class="stat-card">
-                <h3 style="margin-bottom: 15px; color: #fff;">Bot Status</h3>
+                <h3 style="margin-bottom: 15px; color: #fff;">Bot Info</h3>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="color:var(--text-gray)">Launch Date</span>
-                    <span style="color:#fff">15.01.2026</span>
+                    <span style="color:var(--text-gray)">Version</span>
+                    <span style="color:#fff">2.0 Ultimate</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <span style="color:var(--text-gray)">Developer</span>
-                    <span style="color:#FFD700">TuZhi Codes</span>
+                    <span style="color:var(--text-gray)">Type</span>
+                    <span style="color:#FFD700">Utility / Econ / AI</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span style="color:var(--text-gray)">Privacy</span>
-                    <span style="color:#4caf50"><i class="fas fa-check-circle"></i> Secure</span>
+                    <span style="color:var(--text-gray)">Dev</span>
+                    <span style="color:#fff">TuZhi Codes</span>
                 </div>
             </div>
 
             <div class="stat-card">
-                <h3 style="margin-bottom: 15px; color: #fff;">Quick Actions</h3>
-                <a href="<%= botConfig.supportUrl %>" class="action-btn btn-support">
-                    <i class="fab fa-discord"></i> Join Support
+                <h3 style="margin-bottom: 15px; color: #fff;">Get Started</h3>
+                <a href="https://discord.com/api/oauth2/authorize?client_id=<%= botConfig.clientId %>&permissions=8&scope=bot%20applications.commands" target="_blank" class="action-btn btn-invite">
+                    <i class="fas fa-plus"></i> Add to Server
                 </a>
                 <a href="/" class="action-btn btn-home">
                     <i class="fas fa-arrow-left"></i> Back to Home
