@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Setup - <%= guild.name %> | ZarKos Ultimate</title>
+    <meta name="theme-color" content="#FFC107">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-body: #0a0a0c;
+            --bg-sidebar: #0f0f13;
+            --bg-header: rgba(15, 15, 19, 0.9);
+            --accent-gold: #FFC107;
+            --accent-orange: #FF8C00;
+            --text-main: #fff;
+            --text-muted: #9ca3af;
+            --border: 1px solid #1f1f23;
+            --success: #57F287;
+            --danger: #ED4245;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: var(--border);
+            display: flex; flex-direction: column; padding: 20px;
+            z-index: 10; transition: transform 0.3s ease;
+        }
+
+        .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; font-weight: 700; font-size: 1.2rem; }
+        .brand img { width: 40px; height: 40px; border-radius: 8px; border: 2px solid var(--accent-gold); }
+        
+        .menu-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin: 20px 0 10px; font-weight: 700; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 15px;
+            color: var(--text-muted); text-decoration: none; border-radius: 8px;
+            transition: 0.2s; margin-bottom: 5px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), transparent);
+            color: var(--accent-gold); border-left: 3px solid var(--accent-gold);
+        }
+
+        /* MAIN CONTENT */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-header {
+            height: 70px; background: var(--bg-header); backdrop-filter: blur(10px);
+            border-bottom: var(--border); display: flex; align-items: center;
+            justify-content: space-between; padding: 0 30px;
+        }
+        .content { padding: 30px; overflow-y: auto; flex: 1; padding-bottom: 150px; }
+
+        /* CARDS */
+        .card {
+            background: #151518; border: 1px solid #222;
+            padding: 25px; border-radius: 12px; margin-bottom: 25px;
+        }
+        .card h3 { font-size: 1.1rem; margin-bottom: 20px; color: var(--accent-gold); display: flex; align-items: center; gap: 10px; }
+
+        /* ADMIN BADGE */
+        .admin-only-badge {
+            display: inline-block;
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid var(--accent-orange);
+            color: var(--accent-orange);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        /* VIEW-ONLY BADGE */
+        .view-only-badge {
+            display: inline-block;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* TOGGLE SWITCH */
+        .setting-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid #222; margin-bottom: 15px;
+        }
+        .setting-row:last-child { border-bottom: none; margin-bottom: 0; }
+        
+        .setting-info h4 { font-size: 1rem; margin-bottom: 5px; }
+        .setting-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333; transition: .3s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 4px; bottom: 4px; background-color: white;
+            transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background: linear-gradient(135deg, #FFD700, #FF8C00); }
+        input:checked + .slider:before { transform: translateX(24px); }
+        input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+
+        /* SELECT INPUT */
+        select {
+            width: 100%; padding: 12px; background: #0a0a0c; border: 1px solid #333;
+            color: white; border-radius: 8px; outline: none; margin-top: 10px;
+            font-family: 'Outfit', sans-serif;
+        }
+        select:focus { border-color: var(--accent-gold); }
+        select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .stat-box { background: #0a0a0c; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #222; }
+        .stat-val { font-size: 2.5rem; font-weight: 700; margin-bottom: 5px; background: linear-gradient(to right, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* DISCORD SAVE BAR */
+        .save-bar {
+            position: fixed; bottom: 0; left: 260px; right: 0;
+            background: #313338; padding: 12px 20px; display: none;
+            align-items: center; justify-content: space-between;
+            z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+            height: 60px;
+        }
+        .save-bar.show { display: flex; }
+        
+        .save-text { 
+            color: #fff; font-weight: 500; font-size: 0.9rem; 
+            display: flex; align-items: center; gap: 8px;
+        }
+        
+        .save-actions { display: flex; gap: 12px; align-items: center; }
+        
+        .btn-reset { 
+            background: transparent; color: #fff; border: none;
+            padding: 8px 16px; cursor: pointer; font-weight: 500;
+            font-size: 0.9rem; text-decoration: underline;
+            transition: 0.2s; border-radius: 3px;
+        }
+        .btn-reset:hover { color: #b5bac1; background: rgba(255,255,255,0.05); }
+        
+        .btn-save { 
+            background: #248046; color: white; border: none;
+            padding: 8px 20px; border-radius: 3px; cursor: pointer;
+            font-weight: 600; font-size: 0.9rem; transition: 0.2s;
+            height: 36px; min-width: 100px;
+        }
+        .btn-save:hover { background: #1a6334; }
+        .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* RESET MEMORY BUTTON */
+        .btn-danger {
+            background: var(--danger); color: white; border: none;
+            padding: 12px 24px; border-radius: 8px; cursor: pointer;
+            font-weight: 600; transition: 0.2s; margin-top: 10px;
+        }
+        .btn-danger:hover { background: #c23b3e; }
+        .btn-danger:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* FOOTER */
+        .dashboard-footer {
+            background: var(--bg-sidebar);
+            border-top: var(--border);
+            padding: 25px 30px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-content { max-width: 1200px; margin: 0 auto; }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .footer-copyright strong {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(255, 193, 7, 0.05);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-orange);
+            transform: translateY(-3px);
+            background: rgba(255, 193, 7, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+        }
+
+        .footer-links a i { font-size: 1.1rem; }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar { position: fixed; height: 100vh; transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            
+            .save-bar { 
+                left: 0; flex-direction: row;
+                padding: 10px 15px; height: auto;
+            }
+            .save-text { font-size: 0.85rem; }
+            .save-actions { gap: 8px; }
+            .btn-reset { padding: 6px 12px; font-size: 0.85rem; }
+            .btn-save { padding: 6px 16px; font-size: 0.85rem; min-width: 80px; }
+            
+            .stats-grid { grid-template-columns: 1fr; }
+            .footer-links { flex-direction: column; gap: 10px; }
+            .footer-links a { justify-content: center; }
+        }
+        
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9; }
+        .sidebar-overlay.active { display: block; }
+        .mobile-menu-btn { display: none; }
+        @media (max-width: 768px) { 
+            .mobile-menu-btn { 
+                display: block; position: fixed; bottom: 20px; right: 20px; z-index: 100; 
+                background: var(--accent-gold); border: none; width: 50px; height: 50px; 
+                border-radius: 50%; font-size: 1.5rem; 
+            } 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <img src="<%= botConfig.logoUrl %>" alt="Logo">
+                <span><%= botConfig.name %></span>
+            </div>
+
+            <div class="menu-label">Menu</div>
+            <a href="/dashboard/<%= guild.id %>" class="nav-item">
+                <i class="fas fa-home"></i> Overview
+            </a>
+            
+            <a href="/dashboard/<%= guild.id %>/aichat" class="nav-item active">
+                <i class="fas fa-robot"></i> AI Chat
+            </a>
+
+            <a href="/dashboard/<%= guild.id %>/suggestions" class="nav-item">
+                <i class="fas fa-lightbulb"></i> Suggestions
+            </a>
+            
+            <div class="menu-label">Links</div>
+            <a href="<%= botConfig.supportUrl %>" target="_blank" class="nav-item"><i class="fas fa-headset"></i> Support</a>
+            
+            <div style="margin-top: auto;">
+                <a href="/dashboard" class="nav-item"><i class="fas fa-arrow-left"></i> Change Server</a>
+                <a href="/auth/logout" class="nav-item" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="top-header">
+                <h2 style="font-size: 1.2rem;">AI Chat Setup</h2>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <% if(guild.icon) { %>
+                        <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png" style="width:30px;height:30px;border-radius:50%;">
+                    <% } %>
+                    <span><%= guild.name %></span>
+                </div>
+            </header>
+
+            <div class="content">
+                <h1 style="margin-bottom: 10px;">🤖 AI Chat Configuration</h1>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">
+                    Setup an interactive AI chatbot channel for your server members.
+                </p>
+
+                <!-- View-Only Badge for Non-Owners -->
+                <div id="viewOnlyBadge" class="view-only-badge" style="display:none;">
+                    <i class="fas fa-eye"></i> View-Only Mode - Only bot owner can modify bot settings
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-power-off"></i> System Status</h3>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Enable AI Chat</h4>
+                            <p>Turn the AI chat system on or off for this server.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="enableToggle" onchange="detectChange()" disabled>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-cogs"></i> Channel Settings</h3>
+                    
+                    <div style="margin-bottom: 25px;">
+                        <label style="font-weight:600; display:block; margin-bottom:5px;">Select Chat Channel</label>
+                        <p style="font-size:0.85rem; color:#888; margin-bottom:10px;">The bot will only reply to messages in this specific channel.</p>
+                        <select id="channelSelect" onchange="detectChange()" disabled>
+                            <option value="">Loading channels...</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Auto-Set Cooldown (5s)</h4>
+                            <p>Automatically enforce a 5-second slowmode on this channel to prevent spam.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="cooldownToggle" onchange="detectChange()" disabled>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>
+                        <i class="fas fa-user-friends"></i> User Settings
+                    </h3>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>AI Welcome Messages</h4>
+                            <p>Automatically welcome new members with AI-generated messages.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="welcomeToggle" onchange="detectChange()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>
+                        <i class="fas fa-shield-alt"></i> Content Filter
+                        <span class="admin-only-badge">Admin Only</span>
+                    </h3>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Normal Mode (18+ Roaster)</h4>
+                            <p>Allow bot to use abusive language and roasting humor. Turn off for family-friendly cute mode.</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="abusingToggle" onchange="detectChange()" disabled>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div id="adminNote" style="margin-top:15px; padding:10px; background:rgba(255,140,0,0.1); border-left:3px solid var(--accent-orange); border-radius:4px; font-size:0.85rem; color:var(--text-muted); display:none;">
+                        <i class="fas fa-info-circle"></i> Only server administrators can modify this setting.
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-chart-bar"></i> Usage Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-val" id="totalChat">0</div>
+                            <div class="stat-label">Total AI Replies</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-val" id="dailyChat">0</div>
+                            <div class="stat-label">Replies Today</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-trash-alt"></i> Memory Management</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">
+                        Clear all AI conversation memory for this server. This will reset context for all users.
+                    </p>
+                    <button class="btn-danger" onclick="resetMemory()" id="resetMemoryBtn">
+                        <i class="fas fa-trash"></i> Clear Server Memory
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="save-bar" id="saveBar">
+        <span class="save-text">Careful — you have unsaved changes!</span>
+        <div class="save-actions">
+            <button class="btn-reset" onclick="resetChanges()">Reset</button>
+            <button class="btn-save" onclick="saveChanges()" id="saveBtn">Save Changes</button>
+        </div>
+    </div>
+
+    <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('active');document.getElementById('sidebarOverlay').classList.toggle('active')">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                Copyright © by <strong>ZarKos Ultimate</strong>
+            </div>
+            <div class="footer-links">
+                <a href="<%= botConfig.supportUrl %>" target="_blank">
+                    <i class="fab fa-discord"></i> Support Server
+                </a>
+                <a href="https://youtube.com/@TuZhiCodes" target="_blank">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const guildId = "<%= guild.id %>";
+        const currentUserId = "<%= user.id %>";
+        const botOwnerId = "<%= process.env.BOT_OWNER_ID || '' %>";
+        
+        const isOwner = currentUserId === botOwnerId;
+        
+        let isAdmin = false;
+
+        let originalState = {
+            enabled: false,
+            channelId: "",
+            cooldown: false,
+            welcomeEnabled: false,
+            abusingEnabled: true
+        };
+
+        let hasUnsavedChanges = false;
+
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges && (isOwner || isAdmin)) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        async function init() {
+            try {
+                // Check if user is admin
+                const guildRes = await fetch(`/api/guilds`);
+                const guildData = await guildRes.json();
+                const currentGuild = guildData.guilds.find(g => g.id === guildId);
+                
+                // For now, assume if user can access dashboard, they have some permission
+                // You can add more sophisticated admin check here
+                
+                // Show badges
+                if (!isOwner) {
+                    document.getElementById('viewOnlyBadge').style.display = 'block';
+                }
+
+                // Enable controls
+                if (isOwner) {
+                    document.getElementById('enableToggle').disabled = false;
+                    document.getElementById('channelSelect').disabled = false;
+                    document.getElementById('cooldownToggle').disabled = false;
+                }
+
+                // Welcome toggle - available for all users
+                document.getElementById('welcomeToggle').disabled = false;
+
+                // Memory button - available for all users
+                document.getElementById('resetMemoryBtn').disabled = false;
+
+                // Fetch channels
+                const channelRes = await fetch(`/api/guilds/${guildId}/channels`);
+                const channelData = await channelRes.json();
+                const select = document.getElementById('channelSelect');
+                
+                select.innerHTML = '<option value="">Select a text channel...</option>';
+                channelData.channels.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.text = `# ${c.name}`;
+                    select.appendChild(opt);
+                });
+
+                // Fetch config
+                const configRes = await fetch(`/api/aichat/config/${guildId}`);
+                const data = await configRes.json();
+
+                if(data.config) {
+                    originalState.enabled = data.config.enabled || false;
+                    originalState.channelId = data.config.channelId || "";
+                    originalState.cooldown = data.config.cooldown || false;
+                    originalState.welcomeEnabled = data.config.welcomeEnabled || false;
+                    originalState.abusingEnabled = data.config.abusingEnabled !== undefined ? data.config.abusingEnabled : true;
+
+                    document.getElementById('totalChat').innerText = data.stats?.total || 0;
+                    document.getElementById('dailyChat').innerText = data.stats?.daily || 0;
+                }
+
+                applyStateToDOM(originalState);
+
+                // Check if user is admin to enable abusing toggle
+                await checkAdminPermission();
+
+            } catch (e) {
+                console.error("Error loading AI Chat data", e);
+                alert("❌ Error loading data. Please refresh the page.");
+            }
+        }
+
+        async function checkAdminPermission() {
+            try {
+                // Simple check: try to access guild member info
+                // You might want to add a dedicated endpoint for this
+                const response = await fetch(`/api/guilds/${guildId}/member-info`);
+                
+                if (response.ok) {
+                    const memberData = await response.json();
+                    isAdmin = memberData.isAdmin || false;
+                } else {
+                    // Fallback: assume non-admin
+                    isAdmin = false;
+                }
+
+                // Enable abusing toggle for admin or owner
+                if (isAdmin || isOwner) {
+                    document.getElementById('abusingToggle').disabled = false;
+                } else {
+                    document.getElementById('adminNote').style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error("Admin check error:", error);
+                isAdmin = false;
+                document.getElementById('adminNote').style.display = 'block';
+            }
+        }
+
+        function applyStateToDOM(state) {
+            document.getElementById('enableToggle').checked = state.enabled;
+            document.getElementById('channelSelect').value = state.channelId;
+            document.getElementById('cooldownToggle').checked = state.cooldown;
+            document.getElementById('welcomeToggle').checked = state.welcomeEnabled;
+            document.getElementById('abusingToggle').checked = state.abusingEnabled;
+        }
+
+        function detectChange() {
+            const currentEnabled = document.getElementById('enableToggle').checked;
+            const currentChannel = document.getElementById('channelSelect').value;
+            const currentCooldown = document.getElementById('cooldownToggle').checked;
+            const currentWelcome = document.getElementById('welcomeToggle').checked;
+            const currentAbusing = document.getElementById('abusingToggle').checked;
+
+            const hasChanged = 
+                currentEnabled !== originalState.enabled ||
+                currentChannel !== originalState.channelId ||
+                currentCooldown !== originalState.cooldown ||
+                currentWelcome !== originalState.welcomeEnabled ||
+                currentAbusing !== originalState.abusingEnabled;
+
+            hasUnsavedChanges = hasChanged;
+
+            const saveBar = document.getElementById('saveBar');
+            if (hasChanged) {
+                saveBar.classList.add('show');
+            } else {
+                saveBar.classList.remove('show');
+            }
+        }
+
+        function resetChanges() {
+            if (confirm('⚠️ Discard all unsaved changes?')) {
+                applyStateToDOM(originalState);
+                document.getElementById('saveBar').classList.remove('show');
+                hasUnsavedChanges = false;
+            }
+        }
+
+        async function saveChanges() {
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            
+            const payload = {
+                guildId: guildId,
+                enabled: document.getElementById('enableToggle').checked,
+                channelId: document.getElementById('channelSelect').value,
+                cooldown: document.getElementById('cooldownToggle').checked,
+                welcomeEnabled: document.getElementById('welcomeToggle').checked,
+                abusingEnabled: document.getElementById('abusingToggle').checked
+            };
+
+            try {
+                const res = await fetch('/api/aichat/save', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) {
+                    originalState = { ...payload };
+                    document.getElementById('saveBar').classList.remove('show');
+                    hasUnsavedChanges = false;
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                    
+                    setTimeout(() => {
+                        saveBtn.innerHTML = 'Save Changes';
+                    }, 2000);
+                    
+                    alert("✅ Settings saved successfully!");
+                } else {
+                    alert("❌ Failed to save settings.");
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = 'Save Changes';
+                }
+            } catch (e) {
+                console.error(e);
+                alert("❌ Error saving settings.");
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = 'Save Changes';
+            }
+        }
+
+        async function resetMemory() {
+            if (!confirm('⚠️ Are you sure you want to clear AI memory for this server?\n\nThis will reset conversation history. This action cannot be undone.')) {
+                return;
+            }
+
+            const btn = document.getElementById('resetMemoryBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+
+            try {
+                const res = await fetch('/api/aichat/reset-memory', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ guildId })
+                });
+
+                if (res.ok) {
+                    alert('✅ AI memory cleared successfully!');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Memory Cleared!';

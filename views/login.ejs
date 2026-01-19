@@ -1,1 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Primary Meta Tags -->
+    <title><%= botConfig.name %> - Dashboard Login</title>
+    <meta name="title" content="<%= botConfig.name %> - Dashboard">
+    <meta name="description" content="Access the ultimate Discord bot dashboard. Manage AI Chat, Suggestions, and more with professional tools.">
+    
+    <!-- Open Graph / Discord Embed -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= process.env.DASHBOARD_URL || 'http://localhost:' + process.env.DASHBOARD_PORT %>">
+    <meta property="og:title" content="<%= botConfig.name %> - Dashboard">
+    <meta property="og:description" content="Professional Discord bot dashboard with AI Chat, Suggestions, and advanced server management tools.">
+    <meta property="og:image" content="<%= botConfig.logoUrl %>">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:site_name" content="<%= botConfig.name %>">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="<%= process.env.DASHBOARD_URL || 'http://localhost:' + process.env.DASHBOARD_PORT %>">
+    <meta property="twitter:title" content="<%= botConfig.name %> - Dashboard">
+    <meta property="twitter:description" content="Professional Discord bot dashboard with AI Chat, Suggestions, and advanced server management tools.">
+    <meta property="twitter:image" content="<%= botConfig.logoUrl %>">
+    
+    <!-- Theme -->
+    <meta name="theme-color" content="<%= botConfig.themeColor %>">
+    <link rel="icon" href="<%= botConfig.logoUrl %>" type="image/png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --bg-sidebar: #0f0f13;
+            --accent-gold: #FFC107;
+            --accent-orange: #FF8C00;
+            --text-white: #ffffff;
+            --text-muted: #9ca3af;
+            --discord-blue: #5865F2;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* === ANIMATED BACKGROUND === */
+        .bg-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: float 25s infinite ease-in-out;
+        }
+
+        .orb-1 {
+            top: -20%;
+            left: -15%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, #FF8C00 0%, transparent 70%);
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            bottom: -20%;
+            right: -15%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, #FFD700 0%, transparent 70%);
+            animation-delay: -10s;
+        }
+
+        .orb-3 {
+            top: 50%;
+            left: 50%;
+            width: 40vw;
+            height: 40vw;
+            background: radial-gradient(circle, #FFA500 0%, transparent 70%);
+            animation-delay: -5s;
+            opacity: 0.2;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(40px, -40px) scale(1.1);
+            }
+            50% {
+                transform: translate(-30px, 30px) scale(0.9);
+            }
+            75% {
+                transform: translate(30px, 40px) scale(1.05);
+            }
+        }
+
+        /* === MAIN CONTAINER === */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            padding: 40px 20px;
+        }
+
+        .login-card {
+            background: rgba(21, 21, 24, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 193, 7, 0.1);
+            padding: 3.5rem 3rem;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transform: translateY(30px);
+            opacity: 0;
+            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bot-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 30px;
+            margin: 0 auto 1.5rem;
+            object-fit: cover;
+            border: 3px solid rgba(255, 193, 7, 0.3);
+            box-shadow: 0 8px 30px rgba(255, 193, 7, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .bot-avatar:hover {
+            transform: scale(1.08) rotate(-3deg);
+            box-shadow: 0 12px 40px rgba(255, 193, 7, 0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 8px 30px rgba(255, 193, 7, 0.3);
+            }
+            50% {
+                box-shadow: 0 12px 45px rgba(255, 193, 7, 0.5);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 16px;
+            background: var(--discord-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.3s;
+            border: none;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.3);
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.6s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(88, 101, 242, 0.5);
+            background: #4752c4;
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
+        }
+
+        /* === COOKIE BANNER === */
+        .cookie-banner {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            max-width: 420px;
+            width: calc(100% - 60px);
+            z-index: 100;
+            transform: translateY(200px) scale(0.9);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .cookie-banner.show {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .cookie-banner.shake {
+            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97);
+        }
+
+        .cookie-card {
+            background: #18181b;
+            border: 2px solid var(--accent-gold);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .cookie-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .cookie-icon {
+            font-size: 1.6rem;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .cookie-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .cookie-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .c-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .c-btn-accept {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            color: #000;
+        }
+
+        .c-btn-accept:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .c-btn-decline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .c-btn-decline:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+            40%, 60% { transform: translate3d(6px, 0, 0); }
+        }
+
+        /* === FOOTER === */
+        .dashboard-footer {
+            background: var(--bg-sidebar);
+            border-top: 1px solid rgba(255, 193, 7, 0.1);
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .footer-copyright strong {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(255, 193, 7, 0.05);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-orange);
+            transform: translateY(-3px);
+            background: rgba(255, 193, 7, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+        }
+
+        .footer-links a i {
+            font-size: 1.1rem;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .login-card {
+                padding: 2.5rem 2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .cookie-banner {
+                right: 15px;
+                left: 15px;
+                width: calc(100% - 30px);
+                bottom: 15px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .footer-links a {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Animated Background -->
+    <div class="bg-wrapper">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="login-card">
+            <img src="<%= botConfig.logoUrl %>" alt="<%= botConfig.name %> Logo" class="bot-avatar">
+            <h1><%= botConfig.name %></h1>
+            <p class="subtitle">
+                Access the ultimate control center.<br>
+                Manage your server with professional tools.
+            </p>
+            
+            <a href="#" class="login-btn" id="loginBtn">
+                <i class="fab fa-discord" style="font-size: 1.3rem;"></i>
+                <span>Login with Discord</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Cookie Banner -->
+    <div class="cookie-banner" id="cookieBanner">
+        <div class="cookie-card">
+            <div class="cookie-header">
+                <span class="cookie-icon">🍪</span>
+                <span>Cookie Consent</span>
+            </div>
+            <div class="cookie-text">
+                We use secure cookies to manage your login session. Required for Discord authentication.
+            </div>
+            <div class="cookie-actions">
+                <button class="c-btn c-btn-decline" onclick="handleCookie(false)">Decline</button>
+                <button class="c-btn c-btn-accept" onclick="handleCookie(true)">Accept & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                Copyright © <%= new Date().getFullYear() %> <strong><%= botConfig.name %></strong>
+            </div>
+            <div class="footer-links">
+                <a href="<%= botConfig.supportUrl %>" target="_blank">
+                    <i class="fab fa-discord"></i> Support Server
+                </a>
+                <a href="https://youtube.com/@TuZhiCodes" target="_blank">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+                <a href="<%= botConfig.privacyUrl %>" target="_blank">
+                    <i class="fas fa-shield-alt"></i> Privacy
+                </a>
+                <a href="<%= botConfig.termsUrl %>" target="_blank">
+                    <i class="fas fa-file-contract"></i> Terms
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const COOKIE_NAME = 'dashboard_consent';
+        const cookieBanner = document.getElementById('cookieBanner');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Check consent on load
+        function checkConsent() {
+            const consent = getCookie(COOKIE_NAME);
+            if (!consent) {
+                setTimeout(() => {
+                    cookieBanner.classList.add('show');
+                }, 1000);
+            }
+        }
+
+        // Handle login button click
+        loginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const consent = getCookie(COOKIE_NAME);
+            
+            if (consent === 'accepted') {
+                window.location.href = '/auth/login';
+            } else {
+                showCookieAlert();
+            }
+        });
+
+        // Handle cookie choice
+        function handleCookie(accepted) {
+            if (accepted) {
+                setCookie(COOKIE_NAME, 'accepted', 365);
+                cookieBanner.classList.remove('show');
+                setTimeout(() => {
+                    window.location.href = '/auth/login';
+                }, 300);
+            } else {
+                setCookie(COOKIE_NAME, 'declined', 365);
+                cookieBanner.classList.remove('show');
+                alert('⚠️ Login disabled: Cookies are required for Discord authentication.');
+            }
+        }
+
+        // Show attention animation
+        function showCookieAlert() {
+            cookieBanner.classList.remove('shake');
+            void cookieBanner.offsetWidth; // Trigger reflow
+            cookieBanner.classList.add('show');
+            cookieBanner.classList.add('shake');
+            setTimeout(() => {
+                cookieBanner.classList.remove('shake');
+            }, 600);
+        }
+
+        // Cookie helpers
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Initialize
+        checkConsent();
+    </script>
+</body>
+</html>

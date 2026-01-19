@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Meta Tags -->
+    <title>Select Server - <%= botConfig.name %></title>
+    <meta name="description" content="Select your Discord server to manage with ZarKos Ultimate - Advanced bot dashboard with AutoMod and automation tools.">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="ZarKos Ultimate - Select Server">
+    <meta property="og:description" content="Choose your Discord server to manage with the ultimate bot dashboard.">
+    <meta property="og:image" content="<%= botConfig.logoUrl %>">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="ZarKos Ultimate - Select Server">
+    <meta property="twitter:description" content="Choose your Discord server to manage with the ultimate bot dashboard.">
+    <meta property="twitter:image" content="<%= botConfig.logoUrl %>">
+    
+    <meta name="theme-color" content="#FFC107">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --card-bg: #151518;
+            --gold-gradient: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%);
+            --text-main: #ffffff;
+            --text-muted: #888;
+            --accent-gold: #FFC107;
+            --accent-orange: #FF8C00;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .main-content {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        p {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 60px;
+        }
+        
+        .server-card {
+            background: var(--card-bg);
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: 0.3s;
+            text-decoration: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .server-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .server-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gold-gradient);
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .server-card:hover::before { opacity: 1; }
+
+        .icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #222;
+            object-fit: cover;
+        }
+        .details { flex: 1; }
+        .name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+        .action {
+            font-size: 0.8rem;
+            color: #FFD700;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .invite-btn { color: #888; }
+        
+        .loader {
+            border: 3px solid #333;
+            border-top: 3px solid #FFD700;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 50px auto;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* FOOTER */
+        .dashboard-footer {
+            background: #0f0f13;
+            border-top: 1px solid #1f1f23;
+            padding: 25px 30px;
+            text-align: center;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .footer-copyright strong {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(255, 193, 7, 0.05);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-orange);
+            transform: translateY(-3px);
+            background: rgba(255, 193, 7, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+        }
+
+        .footer-links a i {
+            font-size: 1.1rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .server-card {
+                padding: 15px;
+            }
+
+            body {
+                padding: 20px 15px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .footer-links a {
+                justify-content: center;
+            }
+
+            .dashboard-footer {
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.6rem; }
+            
+            .name {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <h1>Select a Server</h1>
+        <p>Choose a server to manage or invite the bot.</p>
+        
+        <div id="grid" class="grid-container">
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                Copyright © by <strong>ZarKos Ultimate</strong>
+            </div>
+            <div class="footer-links">
+                <a href="<%= botConfig.supportUrl %>" target="_blank">
+                    <i class="fab fa-discord"></i> Support Server
+                </a>
+                <a href="https://youtube.com/@TuZhiCodes" target="_blank">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        fetch('/api/guilds').then(r => r.json()).then(data => {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            data.guilds.forEach(guild => {
+                const card = document.createElement('a');
+                card.className = 'server-card';
+                
+                if (guild.botInGuild) {
+                    card.href = `/dashboard/${guild.id}`;
+                    card.innerHTML = `
+                        ${guild.icon ? `<img src="${guild.icon}" class="icon">` : `<div class="icon" style="display:flex;align-items:center;justify-content:center;">${guild.name[0]}</div>`}
+                        <div class="details">
+                            <div class="name">${guild.name}</div>
+                            <div class="action">Manage Server</div>
+                        </div>
+                    `;
+                } else {
+                    card.href = `<%= botConfig.inviteUrl %>&guild_id=${guild.id}`;
+                    card.target = "_blank";
+                    card.innerHTML = `
+                        ${guild.icon ? `<img src="${guild.icon}" class="icon" style="filter:grayscale(1);">` : `<div class="icon" style="display:flex;align-items:center;justify-content:center;">${guild.name[0]}</div>`}
+                        <div class="details">
+                            <div class="name" style="color:#888;">${guild.name}</div>
+                            <div class="action invite-btn">Invite Bot +</div>
+                        </div>
+                    `;
+                }
+                grid.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html>

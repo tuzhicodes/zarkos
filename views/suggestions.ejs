@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Suggestions - <%= guild.name %> | ZarKos Ultimate</title>
+    <meta name="theme-color" content="#FFC107">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #0a0a0c;
+            --bg-sidebar: #0f0f13;
+            --bg-header: rgba(15, 15, 19, 0.9);
+            --accent-gold: #FFC107;
+            --accent-orange: #FF8C00;
+            --text-main: #fff;
+            --text-muted: #9ca3af;
+            --border: 1px solid #1f1f23;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .brand img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid var(--accent-gold);
+        }
+        
+        .menu-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin: 20px 0 10px;
+            font-weight: 700;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.2s;
+            margin-bottom: 5px;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), transparent);
+            color: var(--accent-gold);
+            border-left: 3px solid var(--accent-gold);
+        }
+        .nav-item i { width: 20px; text-align: center; }
+
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .top-header {
+            height: 70px;
+            background: var(--bg-header);
+            backdrop-filter: blur(10px);
+            border-bottom: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        .content {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+            padding-bottom: 100px;
+        }
+
+        .card {
+            background: #151518;
+            border: 1px solid #222;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #222;
+            margin-bottom: 20px;
+        }
+
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .toggle-label span:first-child {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .toggle-label span:last-child {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(135deg, #FFD700, #FF8C00);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-enabled {
+            background: rgba(87, 242, 135, 0.1);
+            color: #57F287;
+        }
+
+        .status-disabled {
+            background: rgba(237, 66, 69, 0.1);
+            color: #ED4245;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0c;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 8px;
+            outline: none;
+            font-family: 'Outfit', sans-serif;
+            transition: 0.3s;
+        }
+
+        select:focus {
+            border-color: var(--accent-gold);
+        }
+
+        .info-box {
+            background: rgba(255, 193, 7, 0.05);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-box i {
+            color: var(--accent-gold);
+            margin-right: 8px;
+        }
+
+        /* DISCORD SAVE BAR */
+        .save-bar {
+            position: fixed;
+            bottom: 0;
+            left: 260px;
+            right: 0;
+            background: #313338;
+            padding: 12px 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+            height: 60px;
+        }
+        .save-bar.show { display: flex; }
+        
+        .save-text { 
+            color: #fff; 
+            font-weight: 500; 
+            font-size: 0.9rem; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .save-actions { 
+            display: flex; 
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn-reset { 
+            background: transparent;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: underline;
+            transition: 0.2s;
+            border-radius: 3px;
+        }
+        .btn-reset:hover { 
+            color: #b5bac1;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .btn-save { 
+            background: #248046;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            height: 36px;
+            min-width: 100px;
+        }
+        .btn-save:hover { background: #1a6334; }
+        .btn-save:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+        }
+
+        /* FOOTER */
+        .dashboard-footer {
+            background: var(--bg-sidebar);
+            border-top: var(--border);
+            padding: 25px 30px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-copyright {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .footer-copyright strong {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(255, 193, 7, 0.05);
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-orange);
+            transform: translateY(-3px);
+            background: rgba(255, 193, 7, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.2);
+        }
+
+        .footer-links a i {
+            font-size: 1.1rem;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-orange));
+            border: none;
+            border-radius: 50%;
+            color: #000;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
+            backdrop-filter: blur(5px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                z-index: 999;
+                box-shadow: 5px 0 20px rgba(0,0,0,0.5);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .top-header {
+                padding: 0 15px;
+                height: 60px;
+            }
+
+            .top-header h2 {
+                font-size: 1rem;
+            }
+
+            .content {
+                padding: 15px;
+                padding-bottom: 80px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .toggle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            /* Mobile save bar */
+            .save-bar { 
+                left: 0;
+                flex-direction: row;
+                padding: 10px 15px;
+                height: auto;
+            }
+            .save-text { font-size: 0.85rem; }
+            .save-actions { gap: 8px; }
+            .btn-reset { padding: 6px 12px; font-size: 0.85rem; }
+            .btn-save { padding: 6px 16px; font-size: 0.85rem; min-width: 80px; }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .footer-links a {
+                justify-content: center;
+            }
+
+            .dashboard-footer {
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .card h3 {
+                font-size: 1rem;
+            }
+
+            .status-badge {
+                display: block;
+                margin-left: 0;
+                margin-top: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <img src="<%= botConfig.logoUrl %>" alt="Logo">
+                <span><%= botConfig.name %></span>
+            </div>
+
+            <div class="menu-label">Menu</div>
+            <a href="/dashboard/<%= guild.id %>" class="nav-item">
+                <i class="fas fa-home"></i> Overview
+            </a>
+            <a href="/dashboard/<%= guild.id %>/aichat" class="nav-item">
+                <i class="fas fa-robot"></i> AI Chat
+            </a>
+            <a href="/dashboard/<%= guild.id %>/suggestions" class="nav-item active">
+                <i class="fas fa-lightbulb"></i> Suggestions
+            </a>
+            
+            <div class="menu-label">Links</div>
+            <a href="<%= botConfig.supportUrl %>" target="_blank" class="nav-item">
+                <i class="fas fa-headset"></i> Support
+            </a>
+            
+            <div style="margin-top: auto;">
+                <a href="/dashboard" class="nav-item"><i class="fas fa-arrow-left"></i> Change Server</a>
+                <a href="/auth/logout" class="nav-item" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </aside>
+
+        <div class="main-wrapper">
+            <header class="top-header">
+                <h2 style="font-size: 1.2rem;">Suggestion System</h2>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <% if(guild.icon) { %>
+                        <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png" style="width:30px;height:30px;border-radius:50%;">
+                    <% } %>
+                    <span><%= guild.name %></span>
+                </div>
+            </header>
+
+            <div class="content">
+                <h1 style="margin-bottom: 10px;">
+                    Suggestion System
+                    <span id="statusBadge" class="status-badge status-disabled">Disabled</span>
+                </h1>
+                <p style="color: var(--text-muted); margin-bottom: 30px;">
+                    Configure where user suggestions are posted and enable/disable the system.
+                </p>
+
+                <!-- Enable/Disable Toggle -->
+                <div class="card">
+                    <h3><i class="fas fa-power-off"></i> System Status</h3>
+                    
+                    <div class="toggle-container">
+                        <div class="toggle-label">
+                            <span>Enable Suggestion System</span>
+                            <span>Allow users to submit suggestions in the configured channel</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="enableToggle" onchange="detectChange()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>How it works:</strong> When enabled, users can send messages in the suggestion channel and they'll automatically be converted into suggestion posts with voting buttons.
+                    </div>
+                </div>
+
+                <!-- Channel Configuration -->
+                <div class="card">
+                    <h3><i class="fas fa-cog"></i> Channel Configuration</h3>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label><i class="fas fa-hashtag"></i> Suggestion Channel</label>
+                        <select id="channelSelect" onchange="detectChange()">
+                            <option value="">Loading channels...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Current Status -->
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Current Statistics</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                        <div style="text-align: center; padding: 15px; background: #0a0a0c; border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; color: var(--accent-gold);" id="totalSuggestions">0</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">Total Suggestions</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #0a0a0c; border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; color: #57F287;" id="approvedCount">0</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">Approved</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #0a0a0c; border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; color: #FEE75C;" id="pendingCount">0</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">Pending</div>
+                        </div>
+                        <div style="text-align: center; padding: 15px; background: #0a0a0c; border-radius: 8px;">
+                            <div style="font-size: 2rem; font-weight: 700; color: #ED4245;" id="deniedCount">0</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">Denied</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DISCORD SAVE BAR -->
+    <div class="save-bar" id="saveBar">
+        <span class="save-text">
+            <i class="fas fa-exclamation-circle" style="color: #f0b232;"></i>
+            Careful — you have unsaved changes!
+        </span>
+        <div class="save-actions">
+            <button class="btn-reset" onclick="resetChanges()">Reset</button>
+            <button class="btn-save" onclick="saveChanges()" id="saveBtn">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-content">
+            <div class="footer-copyright">
+                Copyright © by <strong>ZarKos Ultimate</strong>
+            </div>
+            <div class="footer-links">
+                <a href="<%= botConfig.supportUrl %>" target="_blank">
+                    <i class="fab fa-discord"></i> Support Server
+                </a>
+                <a href="https://youtube.com/@TuZhiCodes" target="_blank">
+                    <i class="fab fa-youtube"></i> YouTube
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const guildId = "<%= guild.id %>";
+        
+        let originalState = {
+            enabled: false,
+            channelId: ""
+        };
+
+        let hasUnsavedChanges = false;
+
+        // Prevent page leave with unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        if (mobileMenuBtn && sidebar && sidebarOverlay) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+            });
+
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            });
+        }
+
+        // Load initial data
+        async function loadData() {
+            try {
+                const channelsRes = await fetch(`/api/guilds/${guildId}/channels`);
+                const channelsData = await channelsRes.json();
+                
+                const select = document.getElementById('channelSelect');
+                select.innerHTML = '<option value="">Select a channel...</option>';
+                channelsData.channels.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.text = `# ${c.name}`;
+                    select.appendChild(opt);
+                });
+
+                const configRes = await fetch(`/api/suggestions/config/${guildId}`);
+                const configData = await configRes.json();
+
+                if (configData.configured) {
+                    originalState.channelId = configData.channelId;
+                    originalState.enabled = configData.enabled || false;
+                    
+                    document.getElementById('channelSelect').value = configData.channelId;
+                    document.getElementById('enableToggle').checked = configData.enabled;
+                    updateStatusBadge(configData.enabled);
+                } else {
+                    updateStatusBadge(false);
+                }
+
+                loadStatistics();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function updateStatusBadge(enabled) {
+            const badge = document.getElementById('statusBadge');
+            if (enabled) {
+                badge.textContent = 'Enabled';
+                badge.className = 'status-badge status-enabled';
+            } else {
+                badge.textContent = 'Disabled';
+                badge.className = 'status-badge status-disabled';
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const res = await fetch(`/api/suggestions/stats/${guildId}`);
+                const stats = await res.json();
+                
+                document.getElementById('totalSuggestions').textContent = stats.total || 0;
+                document.getElementById('approvedCount').textContent = stats.approved || 0;
+                document.getElementById('pendingCount').textContent = stats.pending || 0;
+                document.getElementById('deniedCount').textContent = stats.denied || 0;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Detect changes
+        function detectChange() {
+            const currentEnabled = document.getElementById('enableToggle').checked;
+            const currentChannel = document.getElementById('channelSelect').value;
+
+            const hasChanged = 
+                currentEnabled !== originalState.enabled ||
+                currentChannel !== originalState.channelId;
+
+            hasUnsavedChanges = hasChanged;
+
+            const saveBar = document.getElementById('saveBar');
+            if (hasChanged) {
+                saveBar.classList.add('show');
+            } else {
+                saveBar.classList.remove('show');
+            }
+        }
+
+        // Reset changes
+        function resetChanges() {
+            if (confirm('⚠️ Discard all unsaved changes?')) {
+                document.getElementById('enableToggle').checked = originalState.enabled;
+                document.getElementById('channelSelect').value = originalState.channelId;
+                document.getElementById('saveBar').classList.remove('show');
+                hasUnsavedChanges = false;
+            }
+        }
+
+        // Save changes
+        async function saveChanges() {
+            const channelId = document.getElementById('channelSelect').value;
+            const enabled = document.getElementById('enableToggle').checked;
+            
+            if (!channelId) {
+                alert('⚠️ Please select a channel first!');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                // Save configuration
+                const setupRes = await fetch('/api/suggestions/setup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guildId, channelId })
+                });
+
+                if (!setupRes.ok) {
+                    throw new Error('Failed to save configuration');
+                }
+
+                // Save toggle state
+                const toggleRes = await fetch('/api/suggestions/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guildId, enabled, channelId })
+                });
+
+                if (!toggleRes.ok) {
+                    throw new Error('Failed to save toggle state');
+                }
+
+                // Update original state
+                originalState = { enabled, channelId };
+                document.getElementById('saveBar').classList.remove('show');
+                hasUnsavedChanges = false;
+                
+                updateStatusBadge(enabled);
+                
+                saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                setTimeout(() => {
+                    saveBtn.innerHTML = 'Save Changes';
+                    saveBtn.disabled = false;
+                }, 2000);
+                
+                alert('✅ Settings saved successfully!');
+                
+            } catch (error) {
+                console.error('Error saving:', error);
+                alert('❌ Error saving configuration!');
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = 'Save Changes';
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
