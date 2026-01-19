@@ -1,1 +1,14 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= typeof pageTitle !== 'undefined' ? pageTitle : 'Dashboard' %> - <%= guild.name %></title>
+    <!-- Same CSS as above -->
+</head>
+<body>
+    <!-- Same sidebar structure -->
+    <div class="content">
+        <%- body %>
+    </div>
+</body>
+</html>
